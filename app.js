@@ -38,9 +38,13 @@ function init(){
   $('.mainTile').attr('class','mainTile').attr('src','img/maintiles.png');
   tileBlocks();
   tileWeapons();
-  addCharactersHamster();
   addCharactersPig();
 
+  activePlayer = piggie;
+
+  updateHighlight(activePlayer); //start the highlight for beginning of the game already
+  
+  addCharactersHamster();
 
 }
 
@@ -92,19 +96,19 @@ function selectRandomTile(){
 
 function tileBlocks(){
   for(var i =0; i < 7; i++){
-    $(selectRandomTile()).attr('src', 'img/blocks.png').addClass('.occupiedTile');
+    $(selectRandomTile()).attr('src', 'img/blocks.png').addClass('occupiedTile');
   }
   for(var i = 0; i < 3; i++){
-    $(selectRandomTile()).attr('src','img/mushroom_house.png').addClass('.occupiedTile');
+    $(selectRandomTile()).attr('src','img/mushroom_house.png').addClass('occupiedTile');
   }
 
 }
 
 function tileWeapons(){
-  $(selectRandomTile()).attr('src','img/banana.png').addClass(banana.cssClass).removeClass('occupiedTile');
-  $(selectRandomTile()).attr('src','img/donut.png').addClass(donut.cssClass).removeClass('occupiedTile');
-  $(selectRandomTile()).attr('src','img/music.png').addClass(music.cssClass).removeClass('occupiedTile');
-  $(selectRandomTile()).attr('src','img/pipe.png').addClass(pipe.cssClass).removeClass('occupiredTile');
+  $(selectRandomTile()).attr('src','img/banana.png').addClass('weapon').addClass(banana.cssClass).removeClass('occupiedTile');
+  $(selectRandomTile()).attr('src','img/donut.png').addClass('weapon').addClass(donut.cssClass).removeClass('occupiedTile');
+  $(selectRandomTile()).attr('src','img/music.png').addClass('weapon').addClass(music.cssClass).removeClass('occupiedTile');
+  $(selectRandomTile()).attr('src','img/pipe.png').addClass('weapon').addClass(pipe.cssClass).removeClass('occupiredTile');
 }
 
 
@@ -124,6 +128,11 @@ function addCharactersHamster(){
 
   $(selectRandomTile()).attr('src',hamsterSrc).addClass('occupiedTile character hamster');
 }
+
+let activePlayer = piggie;
+let passivePlayer = hamster;
+
+
 //debug for two charcater start not next to each other!!
 
 
@@ -159,17 +168,16 @@ function getAvailableTile(characterPos){
 
   i = 1; // top
   
-  while(!((characterPos - Columns * i) >= 0) && !($('.mainTile:eq('+(characterPos - Columns * i) + ')').hasClass('occupiedTile')) && i <=3){
+  while(((characterPos - Columns * i) >= 0) && !($('.mainTile:eq('+(characterPos - Columns * i) + ')').hasClass('occupiedTile')) && i <=3){
     avaliableTiles.push($('.mainTile:eq('+(characterPos - Columns * i) +')'));
     i++;
   }
 
   i = 1; //bottom
-  var south = $('mainTile:eq(' + (characterPos + Columns * i )+')');
+  
+  while(((characterPos + Columns * i) >= 0) && !($('.mainTile:eq('+(characterPos + Columns * i) + ')').hasClass('occupiedTile')) && i <= 3){
 
-  while(!((characterPos + Columns * i) >= 0) && !(south.hasClass('occupiedTile')) && i <= 3){
-
-    avaliableTiles.push(south);
+    avaliableTiles.push($('.mainTile:eq('+(characterPos + Columns * i)+')'));
     i++;
   }
 
@@ -192,6 +200,7 @@ function selectAvailableTiles(player){
 
     $(this).mouseenter(function(){
       $(this).attr('src', player.src).css('transform','none');
+      
     });
 
     //3.On mouse Leave evt  set back tile's img src (weapons. maintile), $(this).mouseleave(function(){ })// if it's a weapon, use $.each to loop through all weapons, if normal tile then just change the attr img src back to original maintile img src
@@ -219,7 +228,7 @@ function selectAvailableTiles(player){
 
 //use off(evt) to deselet all the event listener, also reset the border to none for both characters,
 
-function deslectAvailableTiles(characterPosition){
+function deselectAvailableTiles(characterPosition){
 
     $.each((getAvailableTile(characterPosition)), function(){
       $(this).off('click');
@@ -229,8 +238,8 @@ function deslectAvailableTiles(characterPosition){
 
       var p = $('.piggie').index('.mainTile');
       var h = $('.hamster').index('.mainTile');
-      let newPiggiePos = $('.maintile:eq(p)');
-      let newHamsterPos = $('.mainTile:eq(h)');
+      let newPiggiePos = $('.maintile:eq('+p+')');
+      let newHamsterPos = $('.mainTile:eq('+h+')');
 
       newPiggiePos.css('border','none');
       newHamsterPos.css('border','none');
@@ -262,19 +271,62 @@ function movement(player){
 
   //1. loop through all available tiles and define old/ new pos
 
-  $.each(getAvailableTile(player.characterPos()),function(){
+  $.each(getAvailableTile(player.calculatePos()),function(){
 
     $(this).on('click',function(){
 
-      oldPos = player.characterPos();
+      oldPos = player.calculatePos();
       newPos = ($(this).index('.mainTile'));
 
-      deslectAvailableTiles(oldPos);
+      deselectAvailableTiles(oldPos);
 
+        //delete the oldPos class and img src
+      $('.mainTile:eq('+(oldPos)+')').removeClass('occupiedTile character piggie hamster');
+
+      $('.mainTile:eq('+(oldPos)+')').attr('src','img/maintiles.png');
+
+
+
+        //add the img/src to the newPos
+      $(this).attr('src',player.src).css('transform','none');
+      $(this).addClass('occupiedTile character').addClass(player.cssName);
+
+      //Get into Battle Mode if both character are next to each other , condition: new - another player = 1 or -1, 10 or -10, 
+
+
+
+      //End current player's term and next player start
+      nextPlayer();
+
+
+      //update the highlighting part /use selectedavaialableTile function and repeat this movement function for next player again
+
+      updateHighlight(activePlayer);
       
 
     })
 
   })
+
+}
+
+function updateHighlight(player){
+
+  selectAvailableTiles(player);
+  movement(player);
+
+}
+
+
+
+function nextPlayer(){
+
+  if(activePlayer === piggie){
+    activePlayer = hamster;
+    passivePlayer = piggie;
+  }else {
+    activePlayer = piggie;
+    passivePlayer = hamster;
+  }
 
 }
