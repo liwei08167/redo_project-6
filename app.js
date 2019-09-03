@@ -45,8 +45,11 @@ function init(){
   updateHighlight(activePlayer); //start the highlight for beginning of the game already
   
   addCharactersHamster();
+  twoNotTogether();
 
 }
+
+
 
 
 //Document Ready
@@ -75,21 +78,21 @@ function randomNumber(){
   var lastrandomNum;
   if(randomNum === lastrandomNum ){
     console.log('opps! same number, do it again!');
-    randomNumber();
+    return randomNumber();
   }
   lastrandomNum = randomNum;
   return randomNum;
 
 }
 
-//loop over the selected random tile until it finds one that's not occupied. 
+//loop over the selected random tile until it finds one that's not occupied, and make sure all the elements are presented
 
 function selectRandomTile(){
   let randomT = $('.mainTile:eq(' + randomNumber() +')');
-  while($(randomT).hasClass('occupiedTile') || $(randomT).hasClass('weapon') || randomT === -1 ){
+  while($(randomT).hasClass('occupiedTile') && $(randomT).hasClass('weapon') && randomT === -1 && $(randomT).hasClass('piggie') && $(randomT).hasClass('hamster')){
     randomT = $('.mainTle:eq(' + randomNumber() +')');
   }
- 
+  
   return randomT;
 }
 
@@ -122,6 +125,7 @@ let hamster = new Character(hamsterSrc,'hamster', '2px solid darkorange');
 
 function addCharactersPig(){
   $(selectRandomTile()).attr('src', pigSrc).addClass('occupiedTile character piggie');
+
 }
 
 function addCharactersHamster(){
@@ -129,20 +133,32 @@ function addCharactersHamster(){
   $(selectRandomTile()).attr('src',hamsterSrc).addClass('occupiedTile character hamster');
 }
 
+// add extra function to make sure they are not next to each other in the beginning of the game
+
+
+function twoNotTogether(){
+
+  var pig = $('.piggie').index('mainTile');
+  var hamster = $('.hamster').index('.mainTile');
+
+  if( pig === hamster || pig - hamster <= 10 || pig - hamster >= -10 ||pig - hamster == 1 || pig - hamster == -1){
+
+    
+  //  window.location.reload();
+
+  }
+}
+
 let activePlayer = piggie;
 let passivePlayer = hamster;
 
 
-//debug for two charcater start not next to each other!!
-
-
-
 //Weapons and their img src/ attack point and cssClass name
 
-let banana = new Weapon('Banana','img/banana.png',30, 'banana');
-let music = new Weapon ('Music', 'img/music.png',25,'Music');
-let pipe = new Weapon('pipe','img/pipe.png',40, 'pipe');
-let donut = new Weapon('donut','img/donut.png',35,'donut');
+let banana = new Weapon('Banana','img/banana.png',30, 'banana','img/pig_banana.png','img/crazy_hamster_banana.png');
+let music = new Weapon ('Music', 'img/music.png',25,'Music', 'img/pig_music.png','img/crazy_hamster_music.png');
+let pipe = new Weapon('pipe','img/pipe.png',40, 'pipe', 'img/pig_pipe.png','img/crazy_hamster_pipe.png');
+let donut = new Weapon('donut','img/donut.png',35,'donut','img/pig_donut.png','img/crazy_hamster_donut.png');
 
 
 
@@ -163,7 +179,7 @@ function getAvailableTile(characterPos){
   i = 1; //left side
   while(!((characterPos - i + 1) % Columns === 0) && !($('.mainTile:eq(' + (characterPos - i ) + ')').hasClass('occupiedTile')) && i <= 3){
     avaliableTiles.push($('.mainTile:eq('+(characterPos - i) +')'));
-    i++
+    i++;
   }
 
   i = 1; // top
@@ -250,18 +266,57 @@ function deselectAvailableTiles(characterPosition){
 
 /*---------------- Weapon Function----------------------- */
 
+function checkWeapons(player, position){
+  
+  //loop through all the weapons cell
+  $.each(weapons,function(index, w){
+    
+    //remove the weapon class from oldPosition
+    if($('.mainTile:eq(' + (position) + ')').hasClass(w.cssClass)){
 
+        $('.mainTile:eq('+(position)+')').removeClass(w.cssClass).removeClass('weapon');
+      
+        
+        //oldweapon and new weapon , if first time, then old/current are same
 
-
-
-
-
-
-
-
-
-
-
+        player.oldWeapon = player.currentWeapon;
+        // 1. if 2nd weapon: change the cssclassName and also 'weapon' and update the img src 
+        
+        if(player.oldWeapon !== ''){
+          
+          $('.mainTile:eq('+(position)+')').addClass(player.oldWeapon.cssClass).addClass('weapon');
+          
+          $('.mainTile:eq('+(position)+')').attr('src', player.oldWeapon.src);
+      
+          
+        }else {
+          
+          //2 if 1st weapon : change the attr img source to maintile
+          $('.mainTile:eq('+(position)+')').attr('src','img/maintiles.png');
+        }
+        
+        
+        //3, update the text name and attack point on the player stats
+        
+        $(player.WeaponName).text(w.name);
+        $(player.WeaponPoint).text(w.attackPoint);
+        
+        //4. update the images on player stats
+        
+        if(player === piggie){
+          
+          $(piggie.bigImgid).attr('src', w.piggieWithWeapon);
+          piggie.currentWeapon = w;
+        }else {
+          
+          $(hamster.bigImgid).attr('src', w.hamsterWithWeapon);
+          hamster.currentWeapon = w;
+        }
+        
+        return false;
+      }
+  });
+};
 
 /*---------------- Movement ----------------------- */
 
@@ -283,9 +338,48 @@ function movement(player){
         //delete the oldPos class and img src
       $('.mainTile:eq('+(oldPos)+')').removeClass('occupiedTile character piggie hamster');
 
-      $('.mainTile:eq('+(oldPos)+')').attr('src','img/maintiles.png');
 
+       // character will leave the 1st weapon behind( when leaving the tile) and pick up the new one , condition: if the cell has class of weapon and also player's oldWeapon !== '', if so, then change the oldPos src to old weapson's src. If not, then change it to mainTile
 
+       if($('.mainTile:eq('+(oldPos)+')').hasClass('weapon') && (player.oldWeapon !== '')){
+
+         $('.mainTile:eq('+(oldPos)+')').attr('src',player.oldWeapon.src);
+       }else {
+          $('.mainTile:eq('+(oldPos)+')').attr('src','img/maintiles.png');
+       };
+
+       //defining which direction to check for weapons, then loop over the selection, condition: newPos - OldPos > 0 and < 4, for loop
+
+       if((newPos - oldPos) < 4 && (newPos - oldPos) > 0){
+
+        //right
+        for(var i = 1; i <= (newPos - oldPos); i++){
+          checkWeapons(player, oldPos + i);
+        }
+
+       }else if((newPos - oldPos) > -4 && (newPos - oldPos) < 0 ){
+
+        //left
+        for(var i = -1; i >= (newPos - oldPos); i--){
+          checkWeapons(player, oldPos + i);
+
+        }
+      }else if((newPos - oldPos) >= Columns){
+
+      //down
+
+        for(var i = Columns; i <= (newPos - oldPos); i += Columns){
+          checkWeapons(player, oldPos + i);
+
+        }  
+       }else {
+
+        //up
+        for(var i = -Columns; i >= (newPos - oldPos); i -= Columns){
+          checkWeapons(player, oldPos + i);
+
+       }
+      }
 
         //add the img/src to the newPos
       $(this).attr('src',player.src).css('transform','none');
@@ -304,11 +398,13 @@ function movement(player){
       updateHighlight(activePlayer);
       
 
-    })
+    });
 
-  })
+  });
 
-}
+};
+
+
 
 function updateHighlight(player){
 
@@ -330,3 +426,4 @@ function nextPlayer(){
   }
 
 }
+
