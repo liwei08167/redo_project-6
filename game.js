@@ -11,6 +11,7 @@ class Character {
     this.oldWeapon = '';
     this.WeaponName = '#' + this.cssName + 'WeaponName';
     this.WeaponPoint = '#' + this.cssName + 'WeaponPoint';
+    this.WeaponImg = '#' + this.cssName + 'WeaponImg';
   }
 
   calculatePos(){
@@ -29,13 +30,15 @@ class Character {
 
 
 class Weapon {
-  constructor(name,src,attackPoint,cssClass, pigWsrc,hamsterWsrc){
+  constructor(name,src,attackPoint,cssClass, pigWsrc,hamsterWsrc,pigW,hamsterW){
     this.name = name;
     this.src = src;
     this.attackPoint = attackPoint;
     this.cssClass = cssClass;
     this.piggieWithWeapon = pigWsrc;
     this.hamsterWithWeapon = hamsterWsrc;
+    this.pigW = pigW;
+    this.hamsterW = hamsterW;
     weapons.push(this);
   }
 
