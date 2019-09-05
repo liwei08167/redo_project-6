@@ -12,6 +12,7 @@ class Character {
     this.WeaponName = '#' + this.cssName + 'WeaponName';
     this.WeaponPoint = '#' + this.cssName + 'WeaponPoint';
     this.WeaponImg = '#' + this.cssName + 'WeaponImg';
+    this.dot = '#' + this.cssName + 'dot';
   }
 
   calculatePos(){

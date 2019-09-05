@@ -465,7 +465,10 @@ function battleUI(){
 
 // fighting scene
 
-/*when activeplayer click attack 
+function fight(player){
+  
+  showActivePlayer(player);
+  /*when activeplayer click attack 
  if(with weapon){
    passiveplayer (if Not defending), whose life will be deducted from activeplayer's attack power (weapon attackpoints), but 
       IF (passive player defending== true) {
@@ -482,3 +485,14 @@ function battleUI(){
  }
 */
 
+
+}
+
+function showActivePlayer(player){
+
+  $(player.dot).addClass('activeDot');
+  $(player.bigImgid).css('transform','scale(1.3)');
+
+
+
+}
