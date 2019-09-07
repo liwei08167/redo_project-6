@@ -13,6 +13,10 @@ class Character {
     this.WeaponPoint = '#' + this.cssName + 'WeaponPoint';
     this.WeaponImg = '#' + this.cssName + 'WeaponImg';
     this.dot = '#' + this.cssName + 'dot';
+    this.attackBtn = '#' + this.cssName + 'FightBtn';
+    this.defendBtn = '#' + this.cssName + 'DefendBtn';
+    this.isDefending = false;
+    this.WinningPic = 'img/' + this.cssName + 'WinningPic.png';
   }
 
   calculatePos(){

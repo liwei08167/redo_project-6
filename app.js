@@ -36,7 +36,7 @@ function init(){
   //redraw map
 
   $('.mainTile').attr('class','mainTile').attr('src','img/maintiles.png');
-  $('#piggieBigPic').css('transform','scaleX(-1)');
+  $('#piggieBigPic');
   tileBlocks();
   tileWeapons();
   addCharactersPig();
@@ -109,10 +109,10 @@ function tileBlocks(){
 }
 
 function tileWeapons(){
-  $(selectRandomTile()).attr('src','img/banana.png').addClass('weapon').addClass(banana.cssClass).removeClass('occupiedTile').removeClass('block');
-  $(selectRandomTile()).attr('src','img/donut.png').addClass('weapon').addClass(donut.cssClass).removeClass('occupiedTile').removeClass('block');
-  $(selectRandomTile()).attr('src','img/music.png').addClass('weapon').addClass(music.cssClass).removeClass('occupiedTile').removeClass('block');
-  $(selectRandomTile()).attr('src','img/pipe.png').addClass('weapon').addClass(pipe.cssClass).removeClass('occupiredTile').removeClass('block');  
+  $(selectRandomTile()).attr('src','img/banana.png').addClass('weapon').addClass(banana.cssClass).removeClass('occupiedTile').removeClass('occupiredTile');
+  $(selectRandomTile()).attr('src','img/donut.png').addClass('weapon').addClass(donut.cssClass).removeClass('occupiedTile').removeClass('occupiredTile');
+  $(selectRandomTile()).attr('src','img/music.png').addClass('weapon').addClass(music.cssClass).removeClass('occupiedTile').removeClass('occupiredTile');
+  $(selectRandomTile()).attr('src','img/pipe.png').addClass('weapon').addClass(pipe.cssClass).removeClass('occupiredTile').removeClass('occupiredTile');  
   
 }
 
@@ -126,7 +126,7 @@ let hamster = new Character(hamsterSrc,'hamster', '2px solid darkorange');
 
 
 function addCharactersPig(){
-  $(selectRandomTile()).attr('src', pigSrc).addClass('occupiedTile character piggie').css('transform','scaleX(-1)');
+  $(selectRandomTile()).attr('src', pigSrc).addClass('occupiedTile character piggie').css('transform','scaleX(1)');
   
 
 }
@@ -144,7 +144,7 @@ function twoNotTogether(){
   var pig = $('.piggie').index('mainTile');
   var hamster = $('.hamster').index('.mainTile');
 
-  if( pig === hamster || pig - hamster == Columns || pig - hamster == - Columns ||pig - hamster == 1 || pig - hamster == -1 ){
+  if( pig.calculatePos() === hamster.calculatePos() || pig - hamster == Columns || pig - hamster == - Columns ||pig - hamster == 1 || pig - hamster == -1 || $('.weapon').length < 4 || $('.occupiedTile').length < 9 || hamster.calculatePos() == -1 || piggie.calculatePos() == -1){
 
     
    location.reload();
@@ -397,7 +397,7 @@ function movement(player){
       //Get into Battle Mode if both character are next to each other , condition: new - another player = 1 or -1, 10 or -10, 
 
       if(newPos - passivePlayer.calculatePos() == 1 || newPos - passivePlayer.calculatePos() == -1 || newPos - passivePlayer.calculatePos() == Columns || newPos - passivePlayer.calculatePos() == -Columns ){
-        alert('battle starts!');
+        
         battleUI();
         return;
       }
@@ -437,18 +437,19 @@ function nextPlayer(){
   }
 
 }
-
-
 /*-----------------------BattleMode --------------------------*/
 
 //the gameboard should disappear and replace by fighting scene + attack and defend button div/ button
 
 function battleUI(){
-  $('#gameboard').fadeOut(1000);
+  $('#gameboard').fadeOut(300);
 
-  $('#player1').append('<div id="piggieBtnDiv"><button id="piggieFightBtn"> Piggie Fight</button> <button id="piggieDefendBtn"> Piggie Defend </button></div>');
+  $('#player1').delay(3000).append('<div id="piggieBtnDiv"><button id="piggieFightBtn"> Piggie Fight</button> <button id="piggieDefendBtn"> Piggie Defend </button></div>');
 
-  $('#player2').append('<div id="hamsterBtnDiv"> <button id="hamsterFightBtn">Hamster Fight</button><button id="hamsterDefendBtn"> Hamster Defend </button></div>');
+  $('#player2').delay(3000).append('<div id="hamsterBtnDiv"> <button id="hamsterFightBtn">Hamster Fight</button><button id="hamsterDefendBtn"> Hamster Defend </button></div>');
+
+  // $('#main').css('margin-top','30px');
+  $('h1').css('margin-top','50px');
 
 
 //change the fight picture
@@ -467,32 +468,143 @@ function battleUI(){
 
 function fight(player){
   
-  showActivePlayer(player);
+ 
+  setTimeout(showActivePlayer(player),5000);
+  player.isDefending = false;
+
   /*when activeplayer click attack 
- if(with weapon){
-   passiveplayer (if Not defending), whose life will be deducted from activeplayer's attack power (weapon attackpoints), but 
-      IF (passive player defending== true) {
-        passiveplayer 's life will be deducted by (activePlayer's weapon /2)
+  if(with weapon){
+    passiveplayer (if Not defending), whose life will be deducted from activeplayer's attack power (weapon attackpoints), but 
+    IF (passive player defending== true) {
+      passiveplayer 's life will be deducted by (activePlayer's weapon /2)
+    }
+    
+  }else(without weapon){
+    passiveplayer (if Not defending), whose life will be deducted from activeplayer's attack power (which is only 10 by default);
+    
+    IF (passive player defending == true) {
+      passiveplayer 's life will be deducted by (activePlayer's weapon /2)
+    }
+  }
+  */
+
+ $(player.attackBtn).on('click', function(){
+  
+    if(player.currentWeapon === ""){
+      
+      if(passivePlayer.isDefending === true){
+        passivePlayer.lifeLevel -= 10 / 2;
+        passivePlayer.isDefending = false; 
+      
+      }else{
+        passivePlayer.lifeLevel -= 10;
+      
       }
-
- }else(without weapon){
-   passiveplayer (if Not defending), whose life will be deducted from activeplayer's attack power (which is only 10 by default);
-
-     IF (passive player defending == true) {
-        passiveplayer 's life will be deducted by (activePlayer's weapon /2)
+    }else{
+      if(passivePlayer.isDefending === true){
+        
+        passivePlayer.lifeLevel -= Math.floor(player.currentWeapon.attackPoint / 2);
+        passivePlayer.isDefending = false;
+       
+      }else{
+        passivePlayer.lifeLevel -= player.currentWeapon.attackPoint;
+        
       }
+    }
 
- }
-*/
+    $(passivePlayer.lifeLevelDisplay).text(' '  + passivePlayer.lifeLevel);
+    //animation effect for being attack?
 
+    //Winning condition: when Passiveplayer lifelevel <= 0, then  player1, player2 will fade out and then append an winner img to the #main , then a H1 message said who is the winner, and then append a button for playing again.
+
+    if(passivePlayer.lifeLevel <= 0){
+
+      $('#main').css('text-align','center');
+      $('#player1').fadeOut(1000);
+      $('#player2').fadeOut(1000, function(){
+        $('#main').css('display','block');
+
+        $('<div id="winnerImgDiv"><img src=' + player.WinningPic + '  width= 600px </div>').hide().appendTo('#main').fadeIn(1500);
+
+        $('<h1 id="winningMsg">'+ player.cssName + ' ' +' is the WINNER!</h1>').appendTo('#main').fadeIn(2500);
+
+        $('#main').append('<div id="playAgain"><button id="playAgainBtn"> Play Again </button></div>').fadeIn(3000);
+
+        playAgain();
+      });
+    }
+
+    $(player.attackBtn).off('click');
+    $(player.defendBtn).off('click');
+
+    nextPlayer();
+    fight(activePlayer);
+   
+  });
+
+  //Defend button, when Player press defending, isDefending will bbe TRUE, then it will switch to next player (meaning player's button off and back to fight function)   and when passivePlayer got attacked, the life will only be deducted by half.
+
+  $(player.defendBtn).on('click',function(){
+    
+    player.isDefending = true;
+    $(player.attackBtn).off('click');
+    $(player.defendBtn).off('click');
+
+    nextPlayer();
+    fight(activePlayer);
+
+  })
 
 }
 
 function showActivePlayer(player){
 
+
   $(player.dot).addClass('activeDot');
-  $(player.bigImgid).css('transform','scale(1.3)');
+  $(passivePlayer.dot).removeClass('activeDot');
+  $(player.bigImgid).delay(2500).css('transform','scale(1.3)').removeClass('fade');
+  $(passivePlayer.bigImgid).delay(2500).css('transform','scale(0.9)').addClass('fade');
 
+  $(passivePlayer.attackBtn).hide();
+  $(passivePlayer.defendBtn).hide();
 
+  $(player.attackBtn).show();
+  $(player.defendBtn).show();
 
 }
+
+/*--------------------------Play Again Button -------------------*/
+// press play again button will enable : 1 removal of id winnerImgDiv, winnerImg winnerMSG playagain div  2. back to the beginning reload()/ or init()?
+
+function playAgain(){
+
+  $('#playAgainBtn').on('click', function(){
+
+    $('#playAgain').remove();
+    $('#winningMsg').remove();
+    $('#winnerImgDiv').remove();
+    $('#piggieBtnDiv').remove();
+    $('#hamsterBtnDiv').remove();
+    $('#gameboard').css('display','block');
+
+    $('#main').css('display', 'flex').css('margin-top','20px');
+
+    //player1 and player 2 should be displayed again!
+
+    $('#player1').fadeIn(1500);
+    $('#player2').fadeIn(1500);
+   
+    $('#piggieBigPic').removeClass('fade').css('transform','scale(1)');
+    $('#piggiedot').removeClass('activeDot');
+    $('#hamsterBigPic').removeClass('fade').css('transform','scale(1)');
+    $('#hamsterdot').removeClass('activeDot');
+   
+    init();
+   
+  })
+
+}
+
+
+
+/*--------------------------Modal -------------------*/

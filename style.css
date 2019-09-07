@@ -9,7 +9,7 @@
   width: auto; 
   height: 700px;
   
-  margin: auto; 
+  margin-top: 25px; 
   
   flex-shrink: 0;
 }
@@ -21,6 +21,7 @@
 
 #player1 img, #player2 img {
   width: 250px;
+ 
 }
 
 #player1 h1, #player2 h1 {
@@ -76,3 +77,34 @@ margin: 0px 15px;
   display: inline-block;
 }
 
+#hamsterDefendBtn, #piggieDefendBtn, #piggieFightBtn, #hamsterFightBtn{
+ font-size:16px;
+ font-weight: 600; 
+ width: 150px;
+ height: 40px;
+ margin: 10px;
+ border: 3px solid orangered;
+ border-radius: 25%; 
+
+}
+
+#hamsterDefendBtn:hover
+ {
+  background-color: orange;
+}
+
+#hamsterFightBtn:hover{
+  background-color: orange;
+}
+
+#piggieDefendBtn:hover {
+  background-color: pink;
+}
+
+#piggieFightBtn:hover {
+  background-color: pink;
+}
+
+.fade {
+  opacity: 0.7!important;
+}
