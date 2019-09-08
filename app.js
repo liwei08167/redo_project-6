@@ -100,10 +100,10 @@ function selectRandomTile(){
 
 function tileBlocks(){
   for(var i =0; i < 7; i++){
-    $(selectRandomTile()).attr('src', 'img/blocks.png').addClass('occupiedTile').addClass('block');
+    $(selectRandomTile()).attr('src', 'img/blocks.png').addClass('occupiedTile');
   }
   for(var i = 0; i < 3; i++){
-    $(selectRandomTile()).attr('src','img/mushroom_house.png').addClass('occupiedTile').addClass('block');
+    $(selectRandomTile()).attr('src','img/mushroom_house.png').addClass('occupiedTile');
   }
 
 }
@@ -136,15 +136,21 @@ function addCharactersHamster(){
   $(selectRandomTile()).attr('src',hamsterSrc).addClass('occupiedTile character hamster');
 }
 
-// add extra function to make sure they are not next to each other in the beginning of the game
+// add extra function to make sure they are not next to each other in the beginning of the game, also bug-prevention. 
 
 
 function twoNotTogether(){
 
-  var pig = $('.piggie').index('mainTile');
-  var hamster = $('.hamster').index('.mainTile');
+  var pig = $('.mainTile').index($('.piggie'));
+  var hamster = $(".mainTile").index($(".hamster"));
+  var cht = $(".mainTile").index($(".character"));
+  var Wp = $(".mainTile").index($(".weapon"));
+  var bk = $(".mainTile").index($(".occupiedTile"));
+  
+  $('.mainTile:eq('+($(".mainTile").index($(".hamster")))+')').hasClass('banana');
+ 
 
-  if( pig.calculatePos() === hamster.calculatePos() || pig - hamster == Columns || pig - hamster == - Columns ||pig - hamster == 1 || pig - hamster == -1 || $('.weapon').length < 4 || $('.occupiedTile').length < 9 || hamster.calculatePos() == -1 || piggie.calculatePos() == -1){
+  if( pig === hamster || pig - hamster == Columns || pig - hamster == - Columns ||pig - hamster === 1 || pig - hamster === -1 || $('.weapon').length < 4 || $('.occupiedTile').length < 9 || hamster == -1 || piggie == -1 || $('.mainTile:eq('+($(".mainTile").index($(".piggie")))+')').hasClass('weapon') ==true || $('.mainTile:eq('+($(".mainTile").index($(".hamster")))+')').hasClass('weapon') == true || $('.mainTile:eq('+($(".mainTile").index($(".weapon")))+')').hasClass('occupiedTile')==true ) {
 
     
    location.reload();
@@ -220,6 +226,7 @@ function selectAvailableTiles(player){
 
     $(this).mouseenter(function(){
       $(this).attr('src', player.src).css('transform','none');
+      
       
     });
 
@@ -469,7 +476,7 @@ function battleUI(){
 function fight(player){
   
  
-  setTimeout(showActivePlayer(player),5000);
+  showActivePlayer(player);
   player.isDefending = false;
 
   /*when activeplayer click attack 
@@ -519,16 +526,17 @@ function fight(player){
 
     if(passivePlayer.lifeLevel <= 0){
 
+      
       $('#main').css('text-align','center');
       $('#player1').fadeOut(1000);
       $('#player2').fadeOut(1000, function(){
         $('#main').css('display','block');
 
-        $('<div id="winnerImgDiv"><img src=' + player.WinningPic + '  width= 600px </div>').hide().appendTo('#main').fadeIn(1500);
+        $('<div id="winnerImgDiv"><img src=' + player.WinningPic + '  width= 600px </div>').hide().appendTo('#main').fadeIn(1250);
 
-        $('<h1 id="winningMsg">'+ player.cssName + ' ' +' is the WINNER!</h1>').appendTo('#main').fadeIn(2500);
+        $('<h1 id="winningMsg">'+ player.cssName + ' ' +' is the WINNER!</h1>').appendTo('#main').fadeIn(1500);
 
-        $('#main').append('<div id="playAgain"><button id="playAgainBtn"> Play Again </button></div>').fadeIn(3000);
+        $('#main').append('<div id="playAgain"><button id="playAgainBtn"> Play Again </button></div>').fadeIn(1800);
 
         playAgain();
       });
@@ -591,15 +599,19 @@ function playAgain(){
 
     //player1 and player 2 should be displayed again!
 
-    $('#player1').fadeIn(1500);
-    $('#player2').fadeIn(1500);
+    $('#player1').fadeIn(1000);
+    $('#player2').fadeIn(1000);
    
-    $('#piggieBigPic').removeClass('fade').css('transform','scale(1)');
+    $('#piggieBigPic').removeClass('fade').css('transform','scale(1)').attr('src','img/pig_big.png');
     $('#piggiedot').removeClass('activeDot');
-    $('#hamsterBigPic').removeClass('fade').css('transform','scale(1)');
+    $('#hamsterBigPic').removeClass('fade').css('transform','scale(1)').attr('src','img/crazy_hamster_big.png');
     $('#hamsterdot').removeClass('activeDot');
-   
+    $('.piggieWeaponImg').attr('src','').css('width',0).css('height',0).css('border','none');
+    $('.hamsterWeaponImg').attr('src','').css('width',0).css('height',0).css('border','none');
+
+    
     init();
+    
    
   })
 
